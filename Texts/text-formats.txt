@@ -1,0 +1,29 @@
+DrScheme uses platform specific text formats. On the PC this means that
+texts with special language specific characters, such as norwegian
+ae-ligature, o-slash and a-ring, must be in UTF-8 format, whereas text
+with standard english characters only, may be in ANSI format.
+
+
+The following 9 texts are in ANSI format
+
+trette-netter
+little-red-house
+aftenpostenkronikker
+being-earnest
+through-looking-glass
+aladdin-und-lampe
+cardello
+La-Nina-de-Luzmela
+bellum-gallicum
+
+
+The following 5 texts are in UTF-8 format
+
+Ensimmäiset
+mobergs-eventyr
+paris-nice-08
+Seanaid-na-nGaedheal
+ynglinga-saga
+
+
+Asbjørn
