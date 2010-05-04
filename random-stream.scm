@@ -36,7 +36,9 @@
   ;; define an implisit stream starting with x0,
   ;; that maps itself to an LCS-stream>
   ;; return the stream
-  ---BODY---)
+  (cons-stream x0
+               (make-LCS (modulo (+ (* a x0) c) m))))
+;  ---BODY---)
 
 (define (make-LFS base-stream combiner)
   ;; define L as the concatenation of
@@ -81,7 +83,8 @@
 
       ;; Add make-LCS and make-LFS to the ready list in turn, or
       ;; substitute make-MTS with one or the other, when they are ready
-      (set! ready '(make-MTS))
+      (set! ready '(make-MTS make-LCS))
+      
 
       (load "Debug/debug-random-stream.scm")))
 
