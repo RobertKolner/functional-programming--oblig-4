@@ -37,8 +37,7 @@
   ;; that maps itself to an LCS-stream>
   ;; return the stream
   (cons-stream x0
-               (make-LCS (modulo (+ (* a x0) c) m))))
-;  ---BODY---)
+               (make-LCS (congruent x0))))
 
 (define (make-LFS base-stream combiner)
   ;; define L as the concatenation of
