@@ -23,29 +23,39 @@
 ;; value is the number of occurences of B in the current text.
 
 (define (make-bigrams-table)
-  (let ((table (mlist (mlist 'bigrams-))))
+  (let ((table (mlist (mlist 'bigrams))))
     
     ;; lookup the row with the given key
-    (define (lookup-row ---ARG---) ---BODY---)
+    (define (lookup-row row-key)
+      (massoc row-key (mcdr table)))
     
     ;; make entry with key and initial count
-    (define (make-entry ---ARG---) ---BODY---)
+    (define (make-entry entry-key)
+      (mcons entry-key 1)) ;> {e . 1}
     
     ;; make new row with new entry
-    (define (make-row ---ARGS---) ---BODY---)
+    (define (make-row entry row-key)
+      (mlist row-key entry)) ;> {r {e . 1}}
     
     ;; add new entry to existing row
-    (define (add-entry! ---ARGS---) ---BODY---)
+    (define (add-entry! entry row)
+      (mappend! (mcdr row) (mlist entry))) ;> {r {e . 1} {n . 1}}
     
     ;; add new row to table
-    (define (add-row! ---ARGS---) ---BODY---)
+    (define (add-row! row)
+      (mappend! table (mlist row))) ;> {{bigrams} {r {e . 1} {n . 1}}}
     
     ;; increase count of existing entry
-    (define (update-entry! ---ARG---) ---BODY---)
+    (define (update-entry! entry)
+      (set-mcdr! entry (+ (mcdr entry) 1)))
     
     ;; insert or update bigram given by the keys
-    (define (add-or-update! ---ARGS---)
-      ---BODY---)
+    (define (add-or-update! row-key entry-key)
+      (let ((row (lookup-row row-key)))
+        (if row
+            'TODO ; sjekk om entry finnes. om finnes oppdater count ellers lag ny entry
+            (make-row (make-entry entry-key) row-key))))
+        
     
     ;; first bigram in text = key of first row + key of first entry in first row
     (define (first-gram)
