@@ -46,7 +46,31 @@
   ;; - (c) the lagged fibonacci-sequence based on L itself
   ;; Every element from (b) on must be made by means of the given combiner.
   ;; return L
-  ---BODY---)
+  
+  ; Algoritme:
+  ; 1. lag en tom liste som skal inneholde historie av k siste resultater
+  ; 2. lag en strøm med første element som neste verdi, og 
+  ;    andre element som måten å få neste element på.
+  ; 3. Oppdater listen med historie:
+  ;    3.1 Hvis n < k, legg til et element på slutten
+  ;    3.2 Hvis n >= k, legg til et element på slutten og fjern den føste.
+  ;    4. Returner strømmen
+  (let ((history (list 'a 'b 'c 'd 'e 'f 'g 'h 'i 'j 'k 'l 'm))
+        (last-element 'm))
+    (define (get-next-LFS last-stream n history last-element)
+      (let* ((current-number 
+             (cond ((< n k) (stream-car last-stream))
+                   (else (combiner (car history) last-element))))
+
+            (new-history
+             (cond ((< n k) (append history current-number))
+                   (else ((append (cdr history) current-number))))))
+        
+        (cons-stream current-number
+                     (get-next-LFS (stream-cdr last-stream) (+ n 1) new-history current-number))))
+    
+    (get-next-LFS base-stream 13 history last-element)))
+  ;---BODY---)
 
 (define MTS (make-MTS (abs (current-milliseconds)))) ; Mersenne Twister Stream
   
@@ -82,7 +106,7 @@
 
       ;; Add make-LCS and make-LFS to the ready list in turn, or
       ;; substitute make-MTS with one or the other, when they are ready
-      (set! ready '(make-MTS make-LCS))
+      (set! ready '(make-MTS make-LCS make-LFS))
       
 
       (load "Debug/debug-random-stream.scm")))
