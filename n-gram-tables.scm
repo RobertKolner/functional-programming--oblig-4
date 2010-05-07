@@ -52,14 +52,18 @@
     ;; insert or update bigram given by the keys
     (define (add-or-update! row-key entry-key)
       (let ((row (lookup-row row-key)))
-        (if row
-            'TODO ; sjekk om entry finnes. om finnes oppdater count ellers lag ny entry
-            (make-row (make-entry entry-key) row-key))))
+        (if row ; Om row eksisterer
+            (let ((entry (massoc entry-key (mcdr row))))
+              (if entry ; Om entry eksisterer
+                  (update-entry! entry) ; Oppdaterer eksisterende entry
+                  (add-entry! (make-entry entry-key) row))) ; Ellers lages det ny entry
+            (add-row! (make-row (make-entry entry-key) row-key))))) ; Ellers lages det ny row og entry
         
     
     ;; first bigram in text = key of first row + key of first entry in first row
     (define (first-gram)
-      ---BODY---)
+      (let ((first-row (mcadr table)))
+        (mcons (mcar first-row) (mcaadr first-row)))) ;> {first-row-key . first-row-first-entry-key}
     
     ; The procedure returned by MAKE_BIGRAMS-TABLE
     (lambda (m)
@@ -75,8 +79,10 @@
 (define (learn-bigrams signals)
   (let ((table (make-bigrams-table)))
     (define (iter signal-1 signals)
-      ---BODY---)
-    (iter  ---ARGS---)
+      (if (null? signals)
+          ((table 'add-or-update!) signal-1 '+) ; ingen flere signaler å hente, men legg til siste med en +
+          (begin ((table 'add-or-update!) signal-1 (car signals)) (iter (car signals) (cdr signals)))))
+    (iter '+ signals)
     table))
 ;; NOTE: In order to get hold of the last bigram, one has to do
 ;; some special final operations.
@@ -194,7 +200,7 @@
       ;; Add learn-bigrams, learn-trigrams and learn-quadragrams to the ready list
       ;; in turn, when they are ready. Notice that learn-trigrams uses learn-bigrams
       ;; and learn-quadragrams uses learn-trigrams.
-      (set! ready '())
+      (set! ready '(learn-bigrams))
 
       (load "Debug/debug-n-gram-tables.scm")))
 
