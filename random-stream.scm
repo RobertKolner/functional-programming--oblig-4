@@ -57,17 +57,17 @@
   
   ; Algoritme:
   ; 1. lag en tom liste som skal inneholde historie av k siste resultater
-  ; 2. lag en strøm med første element som neste verdi, og 
-  ;    andre element som måten å få neste element på.
-  ; 3. Oppdater listen med historie:
-  ;    3.1 Hvis n < k, legg til et element på slutten
-  ;    3.2 Hvis n >= k, legg til et element på slutten og fjern den føste.
-  ;    4. Returner strømmen
+  ; 2. regn ut det neste nummeret (L = historie):
+  ;    2.1 Hvis n < k, neste element = B(n)
+  ;    2.2 Hvis n = k, neste element = L(0) + L(k - j)
+  ;    2.3 Hvis n > k, neste element = L(n - k) + L(n - j)
+  ; 3. Oppdater listen med historie ved å legge til elementet på slutten.
+  ; 4. Returner strømmen.
   (define (get-next-LFS last-stream n history)
     (let* ((current-number 
             (cond ((< n k) (stream-car last-stream))
-                  ((= n k) (combiner (get-by-index history 0) (get-by-index history (- k 1))))
-                  ((> n k) (combiner (get-by-index history (- n j)) (get-by-index history (- n k))))))
+                  ((= n k) (combiner (get-by-index history 0) (get-by-index history (- k j))))
+                  ((> n k) (combiner (get-by-index history (- n k)) (get-by-index history (- n j))))))
            
            (new-history
             (cond ((< n k) (append history (list current-number)))
