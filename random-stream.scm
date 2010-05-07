@@ -47,6 +47,14 @@
   ;; Every element from (b) on must be made by means of the given combiner.
   ;; return L
   
+  ;; Helper function
+  (define (get-by-index list index)
+    (if (eq? list '())
+        #f
+        (if (= index 0)
+            (car list)
+            (get-by-index (cdr list) (- index 1)))))
+  
   ; Algoritme:
   ; 1. lag en tom liste som skal inneholde historie av k siste resultater
   ; 2. lag en strøm med første element som neste verdi, og 
@@ -55,22 +63,21 @@
   ;    3.1 Hvis n < k, legg til et element på slutten
   ;    3.2 Hvis n >= k, legg til et element på slutten og fjern den føste.
   ;    4. Returner strømmen
-  (let ((history (list 'a 'b 'c 'd 'e 'f 'g 'h 'i 'j 'k 'l 'm))
-        (last-element 'm))
-    (define (get-next-LFS last-stream n history last-element)
-      (let* ((current-number 
-             (cond ((< n k) (stream-car last-stream))
-                   (else (combiner (car history) last-element))))
+  (define (get-next-LFS last-stream n history)
+    (let* ((current-number 
+            (cond ((< n k) (stream-car last-stream))
+                  ((= n k) (combiner (get-by-index history 0) (get-by-index history (- k 1))))
+                  ((> n k) (combiner (get-by-index history (- n j)) (get-by-index history (- n k))))))
+           
+           (new-history
+            (cond ((< n k) (append history (list current-number)))
+                  (else (append history (list current-number))))))
+      
+      (cons-stream current-number
+                   (get-next-LFS (stream-cdr last-stream) (+ n 1) new-history))))
+  (get-next-LFS base-stream 0 (list)))
 
-            (new-history
-             (cond ((< n k) (append history current-number))
-                   (else ((append (cdr history) current-number))))))
-        
-        (cons-stream current-number
-                     (get-next-LFS (stream-cdr last-stream) (+ n 1) new-history current-number))))
-    
-    (get-next-LFS base-stream 13 history last-element)))
-  ;---BODY---)
+
 
 (define MTS (make-MTS (abs (current-milliseconds)))) ; Mersenne Twister Stream
   
