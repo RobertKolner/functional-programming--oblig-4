@@ -79,10 +79,10 @@
 (define (learn-bigrams signals)
   (let ((table (make-bigrams-table)))
     (define (iter signal-1 signals)
-      (if (null? signals)
-          ((table 'add-or-update!) signal-1 '+) ; ingen flere signaler å hente, men legg til siste med en +
+      (if (null? (cdr signals))
+          ((table 'add-or-update!) signal-1 (car signals)) ; ingen flere signaler å hente, men legg til siste med en +
           (begin ((table 'add-or-update!) signal-1 (car signals)) (iter (car signals) (cdr signals)))))
-    (iter '+ signals)
+    (iter (car signals) (cdr signals))
     table))
 ;; NOTE: In order to get hold of the last bigram, one has to do
 ;; some special final operations.
