@@ -113,7 +113,7 @@
                     (random-text-signal (next-rand) (mcdr row)))))
      (cons-stream next (generate b next))))
   
-  (generate (mcadr start) (mcadr start)))
+  (generate (mcadr start) (mcaddr start)))
 
 ;----------------------------------------------------------------------------------
 ;; quadragrams based text generator
@@ -127,7 +127,7 @@
                     (mcar start)
                     (random-text-signal (next-rand) (mcdr row)))))
      (cons-stream next (generate s2 s3 next))))
-  (generate (mcadr start) (mcadr start) (mcadr start)))
+  (generate (mcadr start) (mcaddr start) (mcadddr start)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                                                 ;;
