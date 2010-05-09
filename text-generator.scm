@@ -58,7 +58,7 @@
 ;; if the row was found,
 ;; - passes this and a random number to the RANDOM-TEXT-SIGNAL procedure above, and
 ;; - uses the preeding signals and the returned random signal to add to the
-;;   output stream and proceed recursively with its generating process.
+;;   output stream and proceed' recursively with its generating process.
 ;; If the row was not found, GENERATE
 ;; - uses the START variable to get the required signals for the output stream
 ;;   and the next argument or arguments for the recursive call.
@@ -92,8 +92,13 @@
   (define next-rand (random-number-generator))
   (define start (bigrams 'first-gram))
   (define (generate a)
-    --DO-THE-GENERATING--)
-  (generate ---FROM-START---))
+   (let* ((row ((bigrams 'lookup-row) a))
+          (next (if (eq? row #f)
+                    start
+                    (random-text-signal (next-rand) row))))
+     next))
+     
+  (generate '+))
 
 ;----------------------------------------------------------------------------------
 ;; trigrams based text generator
@@ -127,6 +132,6 @@
 
       ;; Add random-bi-text, random-tri-text and random-quadra-text to the ready list
       ;; in turn, when they are ready.
-      (set! ready '(random-text-signal))
+      (set! ready '(random-text-signal random-bi-text))
 
       (load "Debug/debug-text-generator.scm")))
