@@ -25,7 +25,7 @@
   ; and then return the current signal
   (define (loop draw signals)
     (let ((current-signal (mcar signals)))
-      (if (< draw (signal-weight current-signal))
+      (if (<= draw (signal-weight current-signal))
           (signal-value current-signal)
           (loop (- draw (signal-weight current-signal)) (mcdr signals)))))
  
@@ -40,7 +40,7 @@
   
   ; loop with rand-num scaled down to the sum of the signal weights as the first
   ; and weighted signals as the second argument
-  (loop (modulo rand-num (sum-signals)) weighted-signals))
+  (loop (scale-rand rand-num (sum-signals)) weighted-signals))
 
 ;----------------------------------------------------------------------------------
 ;; text generators
@@ -94,11 +94,11 @@
   (define (generate a)
    (let* ((row ((bigrams 'lookup-row) a))
           (next (if (eq? row #f)
-                    start
-                    (random-text-signal (next-rand) row))))
-     next))
+                    (mcar start)
+                    (random-text-signal (next-rand) (mcdr row)))))
+     (cons-stream next (generate next))))
      
-  (generate '+))
+  (generate (mcadr start)))
 
 ;----------------------------------------------------------------------------------
 ;; trigrams based text generator
@@ -107,8 +107,13 @@
   (define next-rand (random-number-generator))
   (define start (trigrams 'first-gram))
   (define (generate a b)
-    --DO-THE-GENERATING--)
-  (generate ---FROM-START---))
+   (let* ((row ((trigrams 'lookup-row) a b))
+          (next (if (eq? row #f)
+                    (mcar start)
+                    (random-text-signal (next-rand) (mcdr row)))))
+     (cons-stream next (generate b next))))
+  
+  (generate (mcadr start) (mcadr start)))
 
 ;----------------------------------------------------------------------------------
 ;; quadragrams based text generator
@@ -117,8 +122,12 @@
   (define next-rand (random-number-generator))
   (define start (quadragrams 'first-gram))
   (define (generate s1 s2 s3)
-    --DO-THE-GENERATING--)
-  (generate ---FROM-START---))
+       (let* ((row ((quadragrams 'lookup-row) s1 s2 s3))
+          (next (if (eq? row #f)
+                    (mcar start)
+                    (random-text-signal (next-rand) (mcdr row)))))
+     (cons-stream next (generate s2 s3 next))))
+  (generate (mcadr start) (mcadr start) (mcadr start)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                                                 ;;
@@ -132,6 +141,6 @@
 
       ;; Add random-bi-text, random-tri-text and random-quadra-text to the ready list
       ;; in turn, when they are ready.
-      (set! ready '(random-text-signal random-bi-text))
+      (set! ready '(random-text-signal random-bi-text random-tri-text random-quadra-text))
 
       (load "Debug/debug-text-generator.scm")))
