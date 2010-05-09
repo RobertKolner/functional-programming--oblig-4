@@ -13,8 +13,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;----------------------------------------------------------------------------------
-(define rng (random-number-generator))
-
 ;; weighted random signal generator
 (define (random-text-signal rand-num            ; uskalert random-tall
                             weighted-signals)   ; raden med siste-tegnene | ordene
@@ -32,15 +30,17 @@
           (loop (- draw (signal-weight current-signal)) (mcdr signals)))))
  
   ; Sum up weights of all signals:
-  (define (sum-signals weighted-signals)
-    (if (not (eq? weighted-signals '()))
-        (+ (signal-weight (mcar weighted-signals))
-           (sum-signals (mcdr weighted-signals)))
-        0))
+  (define (sum-signals)
+    (define (sum-loop weighted-signals)
+      (if (not (eq? weighted-signals '()))
+          (+ (signal-weight (mcar weighted-signals))
+             (sum-loop (mcdr weighted-signals)))
+          0))
+    (sum-loop weighted-signals))
   
   ; loop with rand-num scaled down to the sum of the signal weights as the first
   ; and weighted signals as the second argument
-  (loop (modulo (rng) (sum-signals weighted-signals)) weighted-signals))
+  (loop (modulo rand-num (sum-signals)) weighted-signals))
 
 ;----------------------------------------------------------------------------------
 ;; text generators
