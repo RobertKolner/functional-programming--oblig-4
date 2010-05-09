@@ -26,18 +26,21 @@
   ; the relation between draw and the current signal satisfies the appropriate test,
   ; and then return the current signal
   (define (loop draw signals)
-    --BODY--)
+    (let ((current-signal (mcar signals)))
+      (if (< draw (signal-weight current-signal))
+          (signal-value current-signal)
+          (loop (- draw (signal-weight current-signal)) (mcdr signals)))))
  
   ; Sum up weights of all signals:
   (define (sum-signals weighted-signals)
     (if (not (eq? weighted-signals '()))
         (+ (signal-weight (mcar weighted-signals))
-           (sum-signals (cdr weighted-signals)))
+           (sum-signals (mcdr weighted-signals)))
         0))
   
   ; loop with rand-num scaled down to the sum of the signal weights as the first
   ; and weighted signals as the second argument
-  (loop (sum-signals (modulo (rng) (sum-signals weighted-signals)) (weighted-signals)))
+  (loop (modulo (rng) (sum-signals weighted-signals)) weighted-signals))
 
 ;----------------------------------------------------------------------------------
 ;; text generators
@@ -124,6 +127,6 @@
 
       ;; Add random-bi-text, random-tri-text and random-quadra-text to the ready list
       ;; in turn, when they are ready.
-      (set! ready '())
+      (set! ready '(random-text-signal))
 
       (load "Debug/debug-text-generator.scm")))
