@@ -104,7 +104,7 @@
     (define (lookup-row row-key page-key)
       (let ((page (massoc page-key (mcdr table))))
             (if page
-                (((mcadr page) 'lookup-row) row-key)
+                (((mcdr page) 'lookup-row) row-key)
                 #f)))
     
     ; Let the page-key be associated with a new bigrams table
@@ -170,7 +170,7 @@
     (define (lookup-row volume-key page-key row-key)
       (let ((volume (massoc volume-key (mcdr table))))
             (if volume
-                (((mcadr volume) 'lookup-row) row-key page-key)
+                (((mcdr volume) 'lookup-row) row-key page-key)
                 #f)))
     
     ;; connect the VOLUME-key to a new trigrams table
