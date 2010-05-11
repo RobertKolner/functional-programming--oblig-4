@@ -62,8 +62,10 @@
     
     ;; first bigram in text = key of first row + key of first entry in first row
     (define (first-gram)
-      (let ((first-row (mcadr table)))
-        (mcons (mcar first-row) (mcaadr first-row)))) ;> {first-row-key . first-row-first-entry-key}
+      (if (not (null? (mcdr table)))
+          (let ((first-row (mcadr table)))
+            (mlist (mcar first-row) (mcaadr first-row))) ;> {first-row-key first-row-first-entry-key}
+          #f))
     
     ; The procedure returned by MAKE_BIGRAMS-TABLE
     (lambda (m)
@@ -80,7 +82,7 @@
   (let ((table (make-bigrams-table)))
     (define (iter signal-1 signals)
       (if (null? (cdr signals))
-          ((table 'add-or-update!) signal-1 (car signals)) ; ingen flere signaler å hente, men legg til siste med en +
+          ((table 'add-or-update!) signal-1 (car signals))
           (begin ((table 'add-or-update!) signal-1 (car signals)) (iter (car signals) (cdr signals)))))
     (iter (car signals) (cdr signals))
     table))
@@ -99,23 +101,34 @@
     
     ;; Lookup the page and, if it was there, ask the bigrams table,
     ;; i.e. the value associated with the page key, to lookup the row.
-    (define (lookup-row ---ARGS---)
-      ---BODY---)
+    (define (lookup-row row-key page-key)
+      (let ((page (massoc page-key (mcdr table))))
+            (if page
+                (((mcadr page) 'lookup-row) row-key)
+                #f)))
     
     ; Let the page-key be associated with a new bigrams table
-    (define (make-page ---ARG---)
-      ---BODY---)
+    (define (make-page page-key)
+      (mcons page-key (make-bigrams-table))) ;> {page.key <p bigrams>}
     
     ;; Look up the page, and after the page is located, or a new one added, send
     ;; the 'add-or-update message to the associated existing or newly created
     ;; bigrams table, and pass the row and entry keys to the procedure returned.
-    (define (add-or-update! ---ARGS---)
-      ---BODY---)
+    (define (add-or-update! entry-key row-key page-key)
+      (let ((page (massoc page-key (mcdr table))))
+        (if page ; Om page eksisterer
+            (((mcdr page) 'add-or-update!) row-key entry-key) ; Oppdater page
+            (let ((page (make-page page-key))) ; Ellers lag en ny page
+              (begin (((mcdr page) 'add-or-update!) row-key entry-key) ; Oppdater i <p bigrams>
+                     (mappend! table (mlist page))))))) ; Legg ny page inn i table
     
     ;; first trigram in text = key of first page + key of first row
     ;; + key of first entry in first row
     (define (first-gram-in-table)
-      ---BODY---)
+      (if (not (null? (mcdr table)))
+          (let ((first-page (mcadr table)))
+            (mappend (mlist (mcar first-page)) ((mcdr first-page) 'first-gram)))
+          #f))
     
     ; The procedure returned by MAKE_TRIGRAMS-TABLE
     (lambda (m)
@@ -130,8 +143,11 @@
 (define (learn-trigrams signals)
   (let ((table (make-trigrams-table)))
     (define (iter signal-1 signal-2 signals)
-      ---BODY---)
-    (iter ---ARGS ---)
+      (if (or (null? (cdr signals)) (null? (cddr signals)) (null? (cdddr signals)))
+          ((table 'add-or-update!) (car signals) signal-2 signal-1)
+          (begin ((table 'add-or-update!) (car signals) signal-2 signal-1)
+                 (iter (car signals) (cadr signals) (cddr signals)))))
+    (iter (car signals) (cadr signals) (cddr signals))
     table))
 ;; NOTE: In order to get hold of the last two trigrams, one has to do
 ;; some special final operations.
@@ -151,22 +167,34 @@
     
     ;; lookup the volume and, if it was there, ask the trigrams table,
     ;; i.e. the value associated with the volume key, to lookup the row
-    (define (lookup-row ---ARGS---)
-      ---BODY---)
+    (define (lookup-row volume-key page-key row-key)
+      (let ((volume (massoc volume-key (mcdr table))))
+            (if volume
+                (((mcadr volume) 'lookup-row) row-key page-key)
+                #f)))
     
-    ;; connect the page-key to a new trigrams table
-    (define (make-volume ---ARG---) ---BODY---)
+    ;; connect the VOLUME-key to a new trigrams table
+    (define (make-volume volume-key)
+      (mcons volume-key (make-trigrams-table)))
     
     ;; Look up the volume, and after the volume is located, or a new one added, send
     ;; the 'insert/update message to the associated existing or newly created tri-
     ;; grams table, and pass the page, row and entry keys to the procedure returned.
-    (define (add-or-update! ---ARGS---)
-      ---BODY---)
+    (define (add-or-update! volume-key page-key row-key entry-key)
+      (let ((volume (massoc volume-key (mcdr table))))
+        (if volume ; Om volume eksisterer
+            (((mcdr volume) 'add-or-update!) entry-key row-key page-key) ; Oppdater volume
+            (let ((volume (make-volume volume-key))) ; Ellers lag en ny volume
+              (begin (((mcdr volume) 'add-or-update!) entry-key row-key page-key) ; Oppdater i <p trigrams>
+                     (mappend! table (mlist volume))))))) ; Legg ny volume inn i table
     
     ;; first quadragram in text = key of first volume + key of first page
     ;; + key of first row + key of first entry in first row
     (define (first-gram-in-table)
-      ---BODY---)
+      (if (not (null? (mcdr table)))
+          (let ((first-volume (mcadr table)))
+            (mappend (mlist (mcar first-volume)) ((mcdr first-volume) 'first-gram)))
+          #f))
     
     ; The procedure returned by MAKE_QUADRAGRAMS-TABLE
     (lambda (m)
@@ -181,8 +209,11 @@
 (define (learn-quadragrams signals)
   (let ((table (make-quadragrams-table)))
     (define (iter s1 s2 s3 signals)
-      ---BODY---)
-    (iter ---ARGS---)
+      (if (or (null? (cdr signals)) (null? (cddr signals)) (null? (cdddr signals)) (null? (cddddr signals)))
+          ((table 'add-or-update!) s1 s2 s3 (car signals))
+          (begin ((table 'add-or-update!) s1 s2 s3 (car signals))
+                 (iter (car signals) (cadr signals) (caddr signals) (cdddr signals)))))
+    (iter (car signals) (cadr signals) (caddr signals) (cdddr signals))
     table))
 ;; NOTE: In order to get hold of the last three quadragrams, one has to do
 ;; som special final operations.
@@ -200,7 +231,7 @@
       ;; Add learn-bigrams, learn-trigrams and learn-quadragrams to the ready list
       ;; in turn, when they are ready. Notice that learn-trigrams uses learn-bigrams
       ;; and learn-quadragrams uses learn-trigrams.
-      (set! ready '(learn-bigrams))
+      (set! ready '(learn-bigrams learn-trigrams learn-quadragrams))
 
       (load "Debug/debug-n-gram-tables.scm")))
 
