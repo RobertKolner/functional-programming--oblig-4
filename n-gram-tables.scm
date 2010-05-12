@@ -101,7 +101,7 @@
     
     ;; Lookup the page and, if it was there, ask the bigrams table,
     ;; i.e. the value associated with the page key, to lookup the row.
-    (define (lookup-row row-key page-key)
+    (define (lookup-row page-key row-key)
       (let ((page (massoc page-key (mcdr table))))
             (if page
                 (((mcdr page) 'lookup-row) row-key)
@@ -170,7 +170,7 @@
     (define (lookup-row volume-key page-key row-key)
       (let ((volume (massoc volume-key (mcdr table))))
             (if volume
-                (((mcdr volume) 'lookup-row) row-key page-key)
+                (((mcdr volume) 'lookup-row) page-key row-key)
                 #f)))
     
     ;; connect the VOLUME-key to a new trigrams table
