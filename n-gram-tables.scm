@@ -143,11 +143,11 @@
 (define (learn-trigrams signals)
   (let ((table (make-trigrams-table)))
     (define (iter signal-1 signal-2 signals)
-      (if (or (null? (cdr signals)) (null? (cddr signals)) (null? (cdddr signals)))
-          ((table 'add-or-update!) (car signals) signal-2 signal-1)
+      (if (or (null? (cdr signals)) (null? (cddr signals)) (null? (cddr signals)))
+          ((table 'add-or-update!) (cadr signals) signal-2 signal-1)
           (begin ((table 'add-or-update!) (car signals) signal-2 signal-1)
-                 (iter (car signals) (cadr signals) (cddr signals)))))
-    (iter (car signals) (cadr signals) (cddr signals))
+                 (iter (car signals) (cadr signals) (cdr signals)))))
+    (iter (car signals) (cadr signals) (cdr signals))
     table))
 ;; NOTE: In order to get hold of the last two trigrams, one has to do
 ;; some special final operations.
@@ -209,11 +209,11 @@
 (define (learn-quadragrams signals)
   (let ((table (make-quadragrams-table)))
     (define (iter s1 s2 s3 signals)
-      (if (or (null? (cdr signals)) (null? (cddr signals)) (null? (cdddr signals)) (null? (cddddr signals)))
-          ((table 'add-or-update!) s1 s2 s3 (car signals))
-          (begin ((table 'add-or-update!) s1 s2 s3 (car signals))
-                 (iter (car signals) (cadr signals) (caddr signals) (cdddr signals)))))
-    (iter (car signals) (cadr signals) (caddr signals) (cdddr signals))
+      (if (or (null? (cdr signals)) (null? (cddr signals)) (null? (cdddr signals)))
+          ((table 'add-or-update!) s1 s2 s3 (caddr signals))
+          (begin ((table 'add-or-update!) s1 s2 s3 (caddr signals))
+                 (iter (car signals) (cadr signals) (caddr signals) (cdr signals)))))
+    (iter (car signals) (cadr signals) (caddr signals) (cdr signals))
     table))
 ;; NOTE: In order to get hold of the last three quadragrams, one has to do
 ;; som special final operations.
