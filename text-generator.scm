@@ -92,13 +92,14 @@
   (define next-rand (random-number-generator))
   (define start (bigrams 'first-gram))
   (define (generate a)
-   (let* ((row ((bigrams 'lookup-row) a))
-          (next (if (eq? row #f)
-                    (mcar start)
-                    (random-text-signal (next-rand) (mcdr row)))))
-     (cons-stream next (generate next))))
+   (let ((row ((bigrams 'lookup-row) a)))
+     (if (eq? row #f)
+         (let ((next (mcar start)))
+           (cons-stream next (generate (mcadr start))))
+         (let ((next (random-text-signal (next-rand) (mcdr row))))
+           (cons-stream next (generate next))))))
      
-  (generate (mcadr start)))
+  (generate (mcar start)))
 
 ;----------------------------------------------------------------------------------
 ;; trigrams based text generator
@@ -107,11 +108,12 @@
   (define next-rand (random-number-generator))
   (define start (trigrams 'first-gram))
   (define (generate a b)
-   (let* ((row ((trigrams 'lookup-row) a b))
-          (next (if (eq? row #f)
-                    (mcar start)
-                    (random-text-signal (next-rand) (mcdr row)))))
-     (cons-stream next (generate b next))))
+   (let ((row ((trigrams 'lookup-row) a b)))
+     (if (eq? row #f)
+         (let ((next (mcar start)))
+           (cons-stream next (generate (mcadr start) (mcaddr start))))
+         (let ((next (random-text-signal (next-rand) (mcdr row))))
+           (cons-stream next (generate b next))))))
   
   (generate (mcadr start) (mcaddr start)))
 
@@ -122,11 +124,12 @@
   (define next-rand (random-number-generator))
   (define start (quadragrams 'first-gram))
   (define (generate s1 s2 s3)
-       (let* ((row ((quadragrams 'lookup-row) s1 s2 s3))
-          (next (if (eq? row #f)
-                    (mcar start)
-                    (random-text-signal (next-rand) (mcdr row)))))
-     (cons-stream next (generate s2 s3 next))))
+    (let ((row ((quadragrams 'lookup-row) s1 s2 s3)))
+      (if (eq? row #f)
+          (let ((next (mcar start)))
+            (cons-stream next (generate (mcadr start) (mcaddr start) (mcadddr start))))
+          (let ((next (random-text-signal (next-rand) (mcdr row))))
+            (cons-stream next (generate s2 s3 next))))))
   (generate (mcadr start) (mcaddr start) (mcadddr start)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
