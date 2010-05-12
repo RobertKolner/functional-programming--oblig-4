@@ -145,7 +145,7 @@
     (define (iter signal-1 signal-2 signals)
       (if (or (null? (cdr signals)) (null? (cddr signals)) (null? (cddr signals)))
           ((table 'add-or-update!) (cadr signals) signal-2 signal-1)
-          (begin ((table 'add-or-update!) (car signals) signal-2 signal-1)
+          (begin ((table 'add-or-update!) (cadr signals) signal-2 signal-1)
                  (iter (car signals) (cadr signals) (cdr signals)))))
     (iter (car signals) (cadr signals) (cdr signals))
     table))
