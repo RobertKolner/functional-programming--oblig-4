@@ -99,7 +99,7 @@
          (let ((next (random-text-signal (next-rand) (mcdr row))))
            (cons-stream next (generate next))))))
      
-  (generate (mcadr start)))
+  (generate (mcar start)))
 
 ;----------------------------------------------------------------------------------
 ;; trigrams based text generator
